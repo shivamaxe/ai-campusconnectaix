@@ -1,0 +1,163 @@
+/* ============================================
+   CampusConnect AI X — Landing Page Styles
+   ============================================ */
+
+/* ---------- Animated Dot Grid ---------- */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(148, 163, 184, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ---------- Gradient Border Utility ---------- */
+.gradient-border {
+  position: relative;
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 1rem;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(168, 85, 247, 0.5));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---------- Shimmer / Skeleton Loading ---------- */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+/* ---------- Logo / Trust Bar Scroll ---------- */
+@keyframes scroll-logos {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.logo-scroll-track {
+  display: flex;
+  width: max-content;
+  animation: scroll-logos 30s linear infinite;
+}
+.logo-scroll-track:hover {
+  animation-play-state: paused;
+}
+
+/* ---------- Glow Pulse ---------- */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.1); }
+  50%      { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.2); }
+}
+.glow-btn {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* ---------- Floating Orb Keyframes ---------- */
+@keyframes orb-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(30px, -40px) scale(1.05); }
+  66%      { transform: translate(-20px, 20px) scale(0.95); }
+}
+@keyframes orb-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(-40px, 30px) scale(1.1); }
+  66%      { transform: translate(20px, -30px) scale(0.9); }
+}
+.orb-1 { animation: orb-float-1 12s ease-in-out infinite; }
+.orb-2 { animation: orb-float-2 15s ease-in-out infinite; }
+
+/* ---------- Counter number styling ---------- */
+.counter-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Timeline connector line ---------- */
+.timeline-connector {
+  position: relative;
+}
+.timeline-connector::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.6), rgba(168, 85, 247, 0.6));
+  transform: translateY(-50%);
+}
+
+/* ---------- Testimonial Auto-Slide ---------- */
+@keyframes testimonial-slide {
+  0%    { transform: translateX(0); }
+  30%   { transform: translateX(0); }
+  33.3% { transform: translateX(-100%); }
+  63.3% { transform: translateX(-100%); }
+  66.6% { transform: translateX(-200%); }
+  96.6% { transform: translateX(-200%); }
+  100%  { transform: translateX(0); }
+}
+.testimonial-track {
+  animation: testimonial-slide 15s ease-in-out infinite;
+}
+
+/* ---------- Smooth Scroll on the HTML root ---------- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---------- Section anchor offset for sticky nav ---------- */
+[id] {
+  scroll-margin-top: 80px;
+}
+
+/* ---------- Gradient text helper for elements that need it inline ---------- */
+.landing-gradient-text {
+  background: linear-gradient(to right, #60a5fa, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---------- Glass card hover glow ---------- */
+.feature-card {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.35s ease,
+              box-shadow 0.35s ease;
+}
+.feature-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+/* ---------- Animated Gradient Background for CTA ---------- */
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animated-gradient-bg {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb, #7c3aed, #1e3a8a);
+  background-size: 300% 300%;
+  animation: gradient-shift 8s ease infinite;
+}

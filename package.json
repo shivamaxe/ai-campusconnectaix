@@ -1,0 +1,33 @@
+{
+  "name": "campusconnect-ai-x",
+  "version": "1.0.0",
+  "description": "Autonomous AI-Powered University, Placement & Career Intelligence Ecosystem",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "test": "cd server && npm test",
+    "test:all": "concurrently \"cd server && npm test\" \"cd client && npm test\"",
+    "seed": "cd server && npm run seed",
+    "lint": "concurrently \"cd server && npm run lint\" \"cd client && npm run lint\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "university",
+    "placement",
+    "ai",
+    "career-intelligence",
+    "lms",
+    "education"
+  ],
+  "author": "CampusConnect AI X",
+  "license": "MIT"
+}

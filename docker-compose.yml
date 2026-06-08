@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: campusconnect-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: campusconnect2024
+      MONGO_INITDB_DATABASE: campusconnect
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - campusconnect-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: campusconnect-server
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://admin:campusconnect2024@mongodb:27017/campusconnect?authSource=admin
+      - PORT=5000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    networks:
+      - campusconnect-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: campusconnect-client
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - campusconnect-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  campusconnect-network:
+    driver: bridge
