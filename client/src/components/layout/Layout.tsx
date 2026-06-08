@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { motion } from 'framer-motion';
+import { LiveChat } from '../common/LiveChat';
 
 const Layout = () => {
   return (
@@ -26,6 +27,7 @@ const Layout = () => {
           </motion.div>
         </main>
       </div>
+      <LiveChat />
     </div>
   );
 };
