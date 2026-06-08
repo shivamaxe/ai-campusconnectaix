@@ -17,7 +17,7 @@ import {
   MapPin,
   Clock
 } from 'lucide-react';
-import { useGetPlacementPredictionMutation } from '../../store/api';
+import { useGetPlacementPredictionMutation, useGetSkillGapMutation } from '../../store/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,9 +34,23 @@ const itemVariants = {
 
 const Dashboard = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const [getPrediction] = useGetPlacementPredictionMutation();
   const [prediction, setPrediction] = useState<any>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showSkillGap, setShowSkillGap] = useState(false);
+  const [targetRole, setTargetRole] = useState('Software Engineer');
+  const [skillGapData, setSkillGapData] = useState<any>(null);
+  const [analyzeGap, { isLoading: isAnalyzingGap }] = useGetSkillGapMutation();
+  const [getPrediction] = useGetPlacementPredictionMutation();
+
+  const handleAnalyzeGap = async () => {
+    try {
+      const res = await analyzeGap({ targetRole }).unwrap();
+      setSkillGapData(res.data.gapAnalysis);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to analyze skill gap');
+    }
+  };
 
   useEffect(() => {
     getPrediction({}).unwrap().then(res => {
@@ -160,22 +174,22 @@ const Dashboard = () => {
               </button>
             </div>
             <div className="space-y-4">
-              <div className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all flex gap-5 cursor-pointer" onClick={() => alert('Recommendation module coming soon!')}>
+              <div className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all flex gap-5 cursor-pointer" onClick={() => { setShowSkillGap(true); setSkillGapData(null); }}>
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center shrink-0 border border-white/5 group-hover:border-blue-500/20 transition-colors">
                   <MonitorPlay className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
-                  <h4 className="text-white font-semibold text-lg group-hover:text-blue-400 transition-colors">Complete System Design Module</h4>
-                  <p className="text-slate-400 mt-1.5 leading-relaxed">Based on your target companies, you should focus on low-level design patterns this week to improve your matching score.</p>
+                  <h4 className="text-white font-semibold text-lg group-hover:text-blue-400 transition-colors">AI Skill Gap Analysis</h4>
+                  <p className="text-slate-400 mt-1.5 leading-relaxed">Let Gemini analyze your current skills against your dream role and generate a personalized learning path.</p>
                 </div>
               </div>
-              <div className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-purple-500/30 transition-all flex gap-5 cursor-pointer" onClick={() => alert('Resume module coming soon!')}>
+              <div className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-purple-500/30 transition-all flex gap-5 cursor-pointer" onClick={() => alert('Resume module available in your Profile!')}>
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center shrink-0 border border-white/5 group-hover:border-purple-500/20 transition-colors">
                   <FileEdit className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
                   <h4 className="text-white font-semibold text-lg group-hover:text-purple-400 transition-colors">Update Resume Keywords</h4>
-                  <p className="text-slate-400 mt-1.5 leading-relaxed">Your ATS score for 'Backend Developer' roles dropped to 72%. Add more quantifiable achievements to boost visibility.</p>
+                  <p className="text-slate-400 mt-1.5 leading-relaxed">Your ATS score for 'Backend Developer' roles dropped to 72%. Head over to your profile to fix it.</p>
                 </div>
               </div>
             </div>
@@ -322,6 +336,95 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Skill Gap Analyzer Modal */}
+      {showSkillGap && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f172a]/80 backdrop-blur-sm overflow-y-auto">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-xl bg-[#1e293b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden my-8"
+          >
+            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-white/5 sticky top-0 z-10">
+              <h3 className="text-xl font-bold font-['Outfit'] text-white flex items-center gap-2">
+                <MonitorPlay className="w-5 h-5 text-blue-400" /> AI Skill Gap Analyzer
+              </h3>
+              <button onClick={() => setShowSkillGap(false)} className="text-slate-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {!skillGapData ? (
+                <div className="space-y-5">
+                  <p className="text-sm text-slate-300">Enter your dream job role. Gemini will analyze your current skills and generate a structured learning path to bridge the gap.</p>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-2">Target Job Role</label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-[#0f172a] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50"
+                      value={targetRole}
+                      onChange={(e) => setTargetRole(e.target.value)}
+                      placeholder="e.g. Full Stack Developer, Data Scientist"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleAnalyzeGap} 
+                    disabled={isAnalyzingGap || !targetRole.trim()}
+                    className="w-full py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {isAnalyzingGap ? 'Analyzing Profile...' : 'Analyze My Gap'}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-white/5">
+                    <div>
+                      <p className="text-sm text-slate-400">Estimated Effort</p>
+                      <h4 className="text-2xl font-bold text-white font-['Outfit']">{skillGapData.estimatedCompletionWeeks} Weeks</h4>
+                    </div>
+                    <Award className="w-8 h-8 text-purple-400 opacity-50" />
+                  </div>
+
+                  <div>
+                    <h4 className="text-white font-semibold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
+                      <AlertCircle className="w-4 h-4 text-amber-400" /> Missing Skills
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {skillGapData.missingSkills?.map((skill: string, i: number) => (
+                        <span key={i} className="px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-sm font-medium">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-white font-semibold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
+                      <Lightbulb className="w-4 h-4 text-emerald-400" /> Recommended Action Plan
+                    </h4>
+                    <div className="space-y-3">
+                      {skillGapData.learningPath?.map((step: string, i: number) => (
+                        <div key={i} className="flex gap-3 text-sm text-slate-300 bg-white/5 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">{i + 1}</span>
+                          <p className="leading-relaxed">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => setSkillGapData(null)}
+                    className="w-full py-3 rounded-xl border border-white/10 text-white font-semibold hover:bg-white/5 transition-colors"
+                  >
+                    Analyze Another Role
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>

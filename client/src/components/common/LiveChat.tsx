@@ -30,7 +30,8 @@ export const LiveChat = () => {
     setInput('');
 
     try {
-      const response = await getAdvice({ query }).unwrap();
+      const history = messages.filter(m => m.id !== 1).map(m => ({ role: m.sender === 'user' ? 'user' : 'model', text: m.text }));
+      const response = await getAdvice({ query, history }).unwrap();
       if (response.success) {
         setMessages(prev => [...prev, { 
           id: Date.now() + 1,

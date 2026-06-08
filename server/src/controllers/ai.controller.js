@@ -10,42 +10,29 @@ const getProvider = () => {
 };
 
 export const getCareerAdvice = asyncHandler(async (req, res) => {
-  const { query } = req.body;
+  const { query, history = [] } = req.body;
   const student = await Student.findById(req.user._id);
   
   try {
-    const prompt = `You are an AI Career Coach. Student profile: CGPA: ${student?.cgpa || 'N/A'}, Skills: ${student?.skills?.join(', ') || 'None'}. Student asks: ${query}`;
-    const provider = getProvider();
-    
-    // Simulate API validation early to force fallback if no keys are provided
-    if (!process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY) {
-      throw new Error("No API keys configured.");
-    }
-    
-    const response = await provider.generateText(prompt);
-    res.status(200).json(new ApiResponse(200, { advice: response }, 'Career advice generated'));
-  } catch (error) {
-    // Dynamic Mock Fallback Logic
-    const q = query.toLowerCase();
-    let dynamicResponse = "I am currently in offline mode. However, regarding your query, I suggest focusing on core fundamentals and exploring our job board!";
-    
-    if (q.includes("java")) {
-      dynamicResponse = "Java is a high-level, class-based, object-oriented programming language that is designed to have as few implementation dependencies as possible. It is widely used in enterprise backend systems.";
-    } else if (q.includes("python")) {
-      dynamicResponse = "Python is an interpreted, high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation. Great for AI and backend!";
-    } else if (q.includes("elon musk")) {
-      dynamicResponse = "Elon Musk is a business magnate and investor. He is the founder, CEO, and Chief Engineer at SpaceX; angel investor, CEO, and Product Architect of Tesla, Inc.; owner and CTO of X Corp.; founder of the Boring Company; and co-founder of Neuralink and OpenAI.";
-    } else if (q.includes("machine learning")) {
-      dynamicResponse = "Machine Learning is a field of inquiry devoted to understanding and building methods that 'learn', that is, methods that leverage data to improve performance on some set of tasks.";
-    } else if (q.includes("joke")) {
-      dynamicResponse = "Why do programmers prefer dark mode? Because light attracts bugs!";
-    } else if (q.includes("resume")) {
-      dynamicResponse = "To improve your resume, make sure you highlight quantifiable achievements (e.g., 'reduced load time by 30%') rather than just listing responsibilities. Also, ensure you match keywords from the job description!";
-    } else if (q.includes("interview")) {
-      dynamicResponse = "For technical interviews, practice the STAR method (Situation, Task, Action, Result) for behavioral questions, and practice explaining your thought process out loud for coding problems.";
+    console.log(`[AI Controller] getCareerAdvice called. Query: "${query}"`);
+    if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
+      throw new Error("Missing API Key configuration in server/.env");
     }
 
-    res.status(200).json(new ApiResponse(200, { advice: `[Offline Mode] ${dynamicResponse}` }, 'Fallback advice used'));
+    const historyString = history.map(h => `${h.role === 'user' ? 'Student' : 'Coach'}: ${h.text}`).join('\n');
+    const prompt = `You are an AI Career Coach. Student profile: CGPA: ${student?.cgpa || 'N/A'}, Skills: ${student?.skills?.join(', ') || 'None'}. 
+Previous Conversation:
+${historyString}
+
+Student asks: ${query}`;
+    const provider = getProvider();
+    
+    const response = await provider.generateText(prompt);
+    console.log(`[AI Controller] getCareerAdvice success.`);
+    res.status(200).json(new ApiResponse(200, { advice: response }, 'Career advice generated'));
+  } catch (error) {
+    console.error(`[AI Controller] Error in getCareerAdvice:`, error.message);
+    res.status(500).json(new ApiResponse(500, null, `AI Service Error: ${error.message}`));
   }
 });
 
@@ -56,52 +43,64 @@ export const analyzeResume = asyncHandler(async (req, res) => {
   }
 
   try {
+    console.log(`[AI Controller] analyzeResume called.`);
     const prompt = `Analyze this resume for a software engineering role. Return a JSON object with: atsScore (number 0-100), missingKeywords (array of strings), formattingIssues (array of strings), and suggestions (array of strings). Resume: ${resumeText}`;
     const provider = getProvider();
     const analysis = await provider.generateStructured(prompt, 'ResumeAnalysis');
+    console.log(`[AI Controller] analyzeResume success.`);
     res.status(200).json(new ApiResponse(200, { analysis }, 'Resume analysis completed'));
   } catch (error) {
-    res.status(200).json(new ApiResponse(200, { 
-      analysis: { atsScore: 85, missingKeywords: ['Docker'], formattingIssues: [], suggestions: ['Use STAR method for bullets'] }
-    }, 'Fallback analysis'));
+    console.error(`[AI Controller] Error in analyzeResume:`, error.message);
+    res.status(500).json(new ApiResponse(500, null, `AI Service Error: ${error.message}`));
   }
 });
 
 export const predictPlacement = asyncHandler(async (req, res) => {
   const student = await Student.findById(req.user._id).lean();
   if (!student) {
-    return res.status(200).json(new ApiResponse(200, { 
-      prediction: { placementProbability: 85, riskAnalysis: 'Moderate', readinessScore: 70, improvementPlan: [] }
-    }, 'Default prediction'));
+    return res.status(404).json(new ApiResponse(404, null, 'Student not found'));
   }
   try {
-    const prompt = `Predict placement probability for ${JSON.stringify(student)}`;
+    console.log(`[AI Controller] predictPlacement called for student ID: ${student._id}`);
+    const prompt = `Predict placement probability for ${JSON.stringify(student)}. Return JSON with placementProbability (number 0-100), riskAnalysis (string), readinessScore (number 0-100), improvementPlan (array of strings).`;
     const provider = getProvider();
     const prediction = await provider.generateStructured(prompt, 'PlacementPrediction');
+    console.log(`[AI Controller] predictPlacement success.`);
     res.status(200).json(new ApiResponse(200, { prediction }, 'Placement prediction generated'));
   } catch (error) {
-    res.status(200).json(new ApiResponse(200, { 
-      prediction: { placementProbability: 92, riskAnalysis: 'Low', readinessScore: 88, improvementPlan: ['Keep practicing'] }
-    }, 'Fallback prediction'));
+    console.error(`[AI Controller] Error in predictPlacement:`, error.message);
+    res.status(500).json(new ApiResponse(500, null, `AI Service Error: ${error.message}`));
   }
 });
 
 export const startMockInterview = asyncHandler(async (req, res) => {
-  res.status(200).json(new ApiResponse(200, { 
-    question: { questionText: "Can you explain how React handles state updates under the hood?", expectedKeywords: ['Virtual DOM', 'Reconciliation'] }
-  }, 'Fallback question'));
+  console.log(`[AI Controller] startMockInterview called.`);
+  res.status(501).json(new ApiResponse(501, null, 'Mock Interview not implemented fully yet.'));
 });
 
 export const evaluateInterviewAnswer = asyncHandler(async (req, res) => {
-  res.status(200).json(new ApiResponse(200, { 
-    evaluation: { score: 8, feedback: "Good effort!", missingKeywords: [] }
-  }, 'Fallback evaluation'));
+  console.log(`[AI Controller] evaluateInterviewAnswer called.`);
+  res.status(501).json(new ApiResponse(501, null, 'Interview Evaluation not implemented fully yet.'));
 });
 
 export const analyzeSkillGap = asyncHandler(async (req, res) => {
-  res.status(200).json(new ApiResponse(200, { 
-    gapAnalysis: { missingSkills: ['System Design'], learningPath: ['Study Distributed Systems'], estimatedCompletionWeeks: 4 }
-  }, 'Fallback gap analysis'));
+  const { targetRole } = req.body;
+  const student = await Student.findById(req.user._id).lean();
+  if (!student) {
+    return res.status(404).json(new ApiResponse(404, null, 'Student not found'));
+  }
+  
+  try {
+    console.log(`[AI Controller] analyzeSkillGap called for targetRole: ${targetRole}`);
+    const prompt = `Analyze the skill gap for student with skills [${student?.skills?.join(', ') || 'None'}] targeting the role "${targetRole || 'Software Engineer'}". Return JSON with: missingSkills (array of strings), learningPath (array of strings with actionable steps), estimatedCompletionWeeks (number).`;
+    const provider = getProvider();
+    const gapAnalysis = await provider.generateStructured(prompt, 'SkillGapAnalysis');
+    console.log(`[AI Controller] analyzeSkillGap success.`);
+    res.status(200).json(new ApiResponse(200, { gapAnalysis }, 'Gap analysis completed'));
+  } catch (error) {
+    console.error(`[AI Controller] Error in analyzeSkillGap:`, error.message);
+    res.status(500).json(new ApiResponse(500, null, `AI Service Error: ${error.message}`));
+  }
 });
 
 export const getJobMatches = asyncHandler(async (req, res) => {
