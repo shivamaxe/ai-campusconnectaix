@@ -5,6 +5,7 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { setCredentials } from '../../store/authSlice';
+import { useLoginMutation } from '../../store/api';
 import { motion } from 'framer-motion';
 
 const Login = () => {
@@ -15,31 +16,23 @@ const Login = () => {
   
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [login, { isLoading }] = useLoginMutation();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        dispatch(setCredentials({ user: data.data.user, token: data.data.accessToken }));
+      const response = await login({ email, password }).unwrap();
+      
+      if (response.success) {
+        dispatch(setCredentials({ user: response.data.user, token: response.data.accessToken }));
         navigate('/dashboard');
       } else {
-        setError(data.message || 'Login failed');
+        setError(response.message || 'Login failed');
       }
-    } catch (err) {
-      setError('Network error. Please try again later.');
-    } finally {
-      setIsLoading(false);
+    } catch (err: any) {
+      setError(err?.data?.message || 'Network error. Please try again later.');
     }
   };
 

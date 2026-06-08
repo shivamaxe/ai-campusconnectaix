@@ -5,6 +5,7 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { setCredentials } from '../../store/authSlice';
+import { useRegisterMutation } from '../../store/api';
 import { motion } from 'framer-motion';
 
 const Register = () => {
@@ -20,6 +21,7 @@ const Register = () => {
   
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [register, { isLoading }] = useRegisterMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,28 +30,17 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        // Auto login could happen here, or redirect to login
-        // For simplicity, we navigate to login page with success state
+      const response = await register(formData).unwrap();
+      
+      if (response.success) {
         navigate('/login', { state: { message: 'Registration successful! Please login.' } });
       } else {
-        setError(data.message || 'Registration failed');
+        setError(response.message || 'Registration failed');
       }
-    } catch (err) {
-      setError('Network error. Please try again later.');
-    } finally {
-      setIsLoading(false);
+    } catch (err: any) {
+      setError(err?.data?.message || 'Network error. Please try again later.');
     }
   };
 

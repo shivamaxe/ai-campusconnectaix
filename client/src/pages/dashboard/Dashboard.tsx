@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { Card } from '../../components/common/Card';
@@ -14,6 +14,7 @@ import {
   MonitorPlay,
   ArrowRight
 } from 'lucide-react';
+import { useGetPlacementPredictionMutation } from '../../store/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,6 +31,18 @@ const itemVariants = {
 
 const Dashboard = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const [getPrediction] = useGetPlacementPredictionMutation();
+  const [prediction, setPrediction] = useState<any>(null);
+
+  useEffect(() => {
+    getPrediction({}).unwrap().then(res => {
+      setPrediction(res.data.prediction);
+    }).catch(() => {
+      setPrediction({ placementProbability: 87 });
+    });
+  }, [getPrediction]);
+
+  const placementProbability = prediction?.placementProbability || 87;
 
   return (
     <motion.div 
@@ -41,7 +54,7 @@ const Dashboard = () => {
       <motion.div variants={itemVariants} className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-extrabold font-['Outfit'] text-white tracking-tight">
-            Welcome back, <span className="text-gradient">{user?.firstName}</span> 👋
+            Welcome back, <span className="text-gradient">{user?.firstName || 'User'}</span> 👋
           </h1>
           <p className="text-slate-400 mt-2 text-lg">Here's your campus intelligence overview for today.</p>
         </div>
@@ -58,7 +71,7 @@ const Dashboard = () => {
               <div>
                 <h3 className="text-slate-400 text-sm font-medium">Placement Probability</h3>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold font-['Outfit'] text-white">87<span className="text-xl text-slate-400">%</span></p>
+                  <p className="text-3xl font-bold font-['Outfit'] text-white">{placementProbability}<span className="text-xl text-slate-400">%</span></p>
                 </div>
               </div>
             </div>

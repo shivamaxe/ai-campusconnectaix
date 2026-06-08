@@ -15,6 +15,8 @@ import {
   Clock
 } from 'lucide-react';
 
+import { useGetJobsQuery, useApplyForJobMutation } from '../../store/api';
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -29,21 +31,23 @@ const itemVariants = {
 };
 
 const JobBoard = () => {
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: response, isLoading } = useGetJobsQuery({});
+  const [applyForJob, { isLoading: isApplying }] = useApplyForJobMutation();
+  const [applyingId, setApplyingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Mock data
-    setTimeout(() => {
-      setJobs([
-        { id: 1, title: 'Software Engineer - Backend', company: 'Google', location: 'Bangalore / Remote', stipend: '1,20,000', match: 94, tags: ['Go', 'Node.js', 'Distributed Systems'], type: 'Full-time' },
-        { id: 2, title: 'Frontend Developer Intern', company: 'Microsoft', location: 'Hyderabad', stipend: '80,000', match: 88, tags: ['TypeScript', 'React', 'Redux'], type: 'Internship' },
-        { id: 3, title: 'SDE 1', company: 'Amazon', location: 'Remote', stipend: '1,00,000', match: 82, tags: ['Java', 'Spring Boot', 'AWS'], type: 'Full-time' },
-        { id: 4, title: 'Machine Learning Engineer', company: 'OpenAI', location: 'Remote', stipend: '1,50,000', match: 76, tags: ['Python', 'PyTorch', 'LLMs'], type: 'Full-time' },
-      ]);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+  const jobs = response?.data || [];
+
+  const handleApply = async (jobId: string) => {
+    setApplyingId(jobId);
+    try {
+      await applyForJob(jobId).unwrap();
+      alert('Application submitted successfully!');
+    } catch (error: any) {
+      alert(error?.data?.message || 'Failed to apply. Please try again.');
+    } finally {
+      setApplyingId(null);
+    }
+  };
 
   return (
     <motion.div 
@@ -181,7 +185,14 @@ const JobBoard = () => {
                     </div>
 
                     <div className="mt-6 pt-4 border-t border-white/5 flex gap-3">
-                      <Button variant="primary" className="flex-1 shadow-lg shadow-blue-500/20">Apply Now</Button>
+                      <Button 
+                        variant="primary" 
+                        className="flex-1 shadow-lg shadow-blue-500/20"
+                        onClick={() => handleApply(job._id || job.id)}
+                        isLoading={applyingId === (job._id || job.id)}
+                      >
+                        Apply Now
+                      </Button>
                       <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10 px-4">Save</Button>
                     </div>
                   </Card>

@@ -5,6 +5,8 @@ import { Button } from '../../components/common/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Send, Bot, User, FileText, Briefcase, GraduationCap } from 'lucide-react';
 
+import { useGetCareerAdviceMutation } from '../../store/api';
+
 const SUGGESTIONS = [
   { icon: <FileText className="w-4 h-4" />, text: "Review my resume for backend roles" },
   { icon: <Briefcase className="w-4 h-4" />, text: "Mock interview for Amazon" },
@@ -13,11 +15,11 @@ const SUGGESTIONS = [
 
 const CareerCoach = () => {
   const [messages, setMessages] = useState<{id: number, sender: 'ai' | 'user', text: string}[]>([
-    { id: 1, sender: 'ai', text: 'Hello! I am your AI Career Coach. Based on your profile, I see you are interested in Backend Development. How can I help you today?' }
+    { id: 1, sender: 'ai', text: 'Hello! I am your AI Career Coach. How can I help you today?' }
   ]);
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [getAdvice, { isLoading: isTyping }] = useGetCareerAdviceMutation();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,20 +35,24 @@ const CareerCoach = () => {
     const newMsgId = Date.now();
     setMessages(prev => [...prev, { id: newMsgId, sender: 'user', text }]);
     setInput('');
-    setIsTyping(true);
 
     try {
-      // Mock LLM delay
-      setTimeout(() => {
+      const response = await getAdvice({ query: text }).unwrap();
+      if (response.success) {
         setMessages(prev => [...prev, { 
           id: Date.now() + 1,
           sender: 'ai', 
-          text: `Based on your goal to become a Backend Engineer, I recommend focusing on System Design and advanced Node.js patterns. Should I generate a 4-week learning plan for you?` 
+          text: response.data.advice 
         }]);
-        setIsTyping(false);
-      }, 1500);
-    } catch (error) {
-      setIsTyping(false);
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error: any) {
+      setMessages(prev => [...prev, { 
+        id: Date.now() + 1,
+        sender: 'ai', 
+        text: error?.data?.message || "I'm sorry, I'm having trouble connecting to my neural network right now. Please try again later."
+      }]);
     }
   };
 

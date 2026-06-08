@@ -4,6 +4,8 @@ import { Button } from '../../components/common/Button';
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 
+import { useGetCoursesQuery } from '../../store/api';
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -18,21 +20,9 @@ const itemVariants = {
 };
 
 const Courses = () => {
-  const [courses, setCourses] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Mock fetch courses
-    setTimeout(() => {
-      setCourses([
-        { id: 1, code: 'CS301', name: 'Database Management Systems', credits: 4, attendance: 85, nextAssignment: 'Oct 20', progress: 65, status: 'on-track' },
-        { id: 2, code: 'CS302', name: 'Operating Systems', credits: 4, attendance: 92, nextAssignment: 'Oct 22', progress: 40, status: 'warning' },
-        { id: 3, code: 'CS303', name: 'Computer Networks', credits: 3, attendance: 78, nextAssignment: 'Oct 25', progress: 80, status: 'critical' },
-        { id: 4, code: 'CS304', name: 'Web Technologies', credits: 3, attendance: 95, nextAssignment: 'Oct 18', progress: 95, status: 'excellent' },
-      ]);
-      setIsLoading(false);
-    }, 800);
-  }, []);
+  const { data: response, isLoading } = useGetCoursesQuery({});
+  
+  const courses = response?.data || [];
 
   return (
     <motion.div 
