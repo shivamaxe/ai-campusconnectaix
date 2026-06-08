@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { 
@@ -18,6 +18,7 @@ import { motion } from 'framer-motion';
 
 export const Sidebar = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
 
   // Define navigation based on role
   const getNavLinks = () => {
@@ -110,7 +111,7 @@ export const Sidebar = () => {
               <p className="text-sm font-semibold text-white">Need help?</p>
             </div>
             <p className="text-xs text-slate-400 mb-3 leading-relaxed">Ask the AI Assistant for career guidance.</p>
-            <button className="w-full text-xs font-semibold py-2 px-4 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-lg transition-all flex items-center justify-center gap-2" onClick={() => alert('Live chat assistant coming soon!')}>
+            <button className="w-full text-xs font-semibold py-2 px-4 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-lg transition-all flex items-center justify-center gap-2" onClick={() => navigate('/dashboard/ai/coach')}>
               <MessageSquare className="w-3.5 h-3.5" />
               Chat Now
             </button>

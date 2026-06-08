@@ -65,6 +65,20 @@ export const api = createApi({
         body: data,
       }),
     }),
+    startMockInterview: builder.mutation({
+      query: (data) => ({
+        url: '/ai/interview/start',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    evaluateInterviewAnswer: builder.mutation({
+      query: (data) => ({
+        url: '/ai/interview/evaluate',
+        method: 'POST',
+        body: data,
+      }),
+    }),
 
     // Jobs
     getJobs: builder.query({
@@ -105,4 +119,6 @@ export const {
   useGetCoursesQuery,
   useGetAnalyticsQuery,
   useAnalyzeResumeMutation,
+  useStartMockInterviewMutation,
+  useEvaluateInterviewAnswerMutation,
 } = api;

@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { Card } from '../../components/common/Card';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
   Briefcase, 
@@ -33,6 +34,7 @@ const itemVariants = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const [prediction, setPrediction] = useState<any>(null);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -218,7 +220,7 @@ const Dashboard = () => {
               
               <div className="w-full h-px bg-white/5"></div>
               
-              <div className="flex gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5" onClick={() => alert('Event details coming soon!')}>
+              <div className="flex gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5" onClick={() => navigate('/dashboard/ai/interview')}>
                 <div className="flex flex-col items-center justify-center w-14 h-14 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl shrink-0 border border-purple-500/20">
                   <span className="text-[10px] text-purple-400 uppercase font-bold tracking-wider">Oct</span>
                   <span className="text-xl font-black text-white font-['Outfit']">18</span>

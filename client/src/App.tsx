@@ -12,6 +12,7 @@ import Profile from './pages/dashboard/Profile';
 import JobBoard from './pages/placement/JobBoard';
 import CareerCoach from './pages/ai/CareerCoach';
 import DigitalTwin from './pages/ai/DigitalTwin';
+import MockInterview from './pages/ai/MockInterview';
 import Courses from './pages/academic/Courses';
 import Analytics from './pages/analytics/Analytics';
 
@@ -46,6 +47,7 @@ const App = () => {
             <Route path="jobs" element={<JobBoard />} />
             <Route path="ai/coach" element={<CareerCoach />} />
             <Route path="ai/twin" element={<DigitalTwin />} />
+            <Route path="ai/interview" element={<MockInterview />} />
             <Route path="courses" element={<Courses />} />
             <Route path="analytics" element={<Analytics />} />
           </Route>
