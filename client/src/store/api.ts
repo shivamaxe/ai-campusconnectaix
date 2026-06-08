@@ -58,6 +58,13 @@ export const api = createApi({
         body: data,
       }),
     }),
+    analyzeResume: builder.mutation({
+      query: (data) => ({
+        url: '/ai/resume-analyze',
+        method: 'POST',
+        body: data,
+      }),
+    }),
 
     // Jobs
     getJobs: builder.query({
@@ -97,4 +104,5 @@ export const {
   useApplyForJobMutation,
   useGetCoursesQuery,
   useGetAnalyticsQuery,
+  useAnalyzeResumeMutation,
 } = api;

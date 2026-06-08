@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { Card } from '../../components/common/Card';
@@ -14,9 +14,13 @@ import {
   FileCheck,
   Briefcase,
   Github,
-  Linkedin
+  Linkedin,
+  X,
+  Sparkles,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '../../components/common/Button';
+import { useAnalyzeResumeMutation } from '../../store/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -33,6 +37,21 @@ const itemVariants = {
 
 const Profile = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const [showResumeAnalyzer, setShowResumeAnalyzer] = useState(false);
+  const [resumeText, setResumeText] = useState('');
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [analyzeResume, { isLoading: isAnalyzing }] = useAnalyzeResumeMutation();
+
+  const handleAnalyze = async () => {
+    if (!resumeText.trim()) return;
+    try {
+      const res = await analyzeResume({ resumeText }).unwrap();
+      setAnalysisResult(res.data.analysis);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to analyze resume');
+    }
+  };
 
   return (
     <motion.div 
@@ -121,7 +140,7 @@ const Profile = () => {
                   <span className="text-slate-400 font-medium">/100</span>
                 </div>
                 <p className="text-sm text-slate-400 mb-6">Top 12% among peers for SDE roles.</p>
-                <Button variant="primary" className="w-full" onClick={() => alert('Resume improvement tool coming soon!')}>Improve Resume</Button>
+                <Button variant="primary" className="w-full" onClick={() => setShowResumeAnalyzer(true)}>Improve Resume</Button>
               </div>
             </Card>
           </motion.div>
@@ -214,6 +233,82 @@ const Profile = () => {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Resume Analyzer Modal */}
+      {showResumeAnalyzer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f172a]/80 backdrop-blur-sm overflow-y-auto">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-2xl bg-[#1e293b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden my-8"
+          >
+            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-white/5 sticky top-0 z-10">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <FileCheck className="w-5 h-5 text-blue-400" /> AI Resume Analyzer
+              </h3>
+              <button onClick={() => { setShowResumeAnalyzer(false); setAnalysisResult(null); setResumeText(''); }} className="text-slate-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {!analysisResult ? (
+                <div className="space-y-4">
+                  <p className="text-sm text-slate-300">Paste your resume text below to instantly get an ATS score and improvement suggestions powered by Google Gemini.</p>
+                  <textarea 
+                    className="w-full h-64 bg-[#0f172a] border border-white/10 rounded-xl p-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500/50 custom-scrollbar resize-none"
+                    placeholder="Paste your resume content here..."
+                    value={resumeText}
+                    onChange={(e) => setResumeText(e.target.value)}
+                  />
+                  <Button variant="primary" className="w-full flex justify-center items-center gap-2" onClick={handleAnalyze} disabled={isAnalyzing || !resumeText.trim()}>
+                    {isAnalyzing ? 'Analyzing with AI...' : <><Sparkles className="w-4 h-4"/> Get AI Analysis</>}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Score Circular UI */}
+                  <div className="flex flex-col items-center justify-center bg-gradient-to-b from-blue-500/10 to-transparent p-6 rounded-2xl border border-blue-500/20">
+                    <div className="text-sm text-blue-400 font-bold tracking-wider uppercase mb-2">ATS Match Score</div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-6xl font-black font-['Outfit'] text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">{analysisResult.atsScore || 0}</span>
+                      <span className="text-slate-400 font-medium text-xl">/100</span>
+                    </div>
+                  </div>
+
+                  {/* Missing Keywords */}
+                  <div>
+                    <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+                      <Target className="w-4 h-4 text-amber-400" /> Missing Keywords
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {analysisResult.missingKeywords?.length > 0 ? analysisResult.missingKeywords.map((kw: string, i: number) => (
+                        <span key={i} className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-sm font-medium">{kw}</span>
+                      )) : <p className="text-sm text-slate-400">Great job! No critical keywords missing.</p>}
+                    </div>
+                  </div>
+
+                  {/* Suggestions */}
+                  <div>
+                    <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-purple-400" /> Improvement Suggestions
+                    </h4>
+                    <ul className="space-y-3">
+                      {(analysisResult.suggestions || []).map((sugg: string, i: number) => (
+                        <li key={i} className="flex gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-lg border border-white/5">
+                          <span className="text-purple-400 font-bold">{i + 1}.</span> {sugg}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <Button variant="outline" className="w-full mt-4" onClick={() => setAnalysisResult(null)}>Analyze Another Resume</Button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };

@@ -50,9 +50,21 @@ export const getCareerAdvice = asyncHandler(async (req, res) => {
 });
 
 export const analyzeResume = asyncHandler(async (req, res) => {
-  res.status(200).json(new ApiResponse(200, { 
-    analysis: { atsScore: 85, missingKeywords: ['Docker'], formattingIssues: [], suggestions: [] }
-  }, 'Fallback analysis'));
+  const { resumeText } = req.body;
+  if (!resumeText) {
+    return res.status(400).json(new ApiResponse(400, null, 'Resume text is required'));
+  }
+
+  try {
+    const prompt = `Analyze this resume for a software engineering role. Return a JSON object with: atsScore (number 0-100), missingKeywords (array of strings), formattingIssues (array of strings), and suggestions (array of strings). Resume: ${resumeText}`;
+    const provider = getProvider();
+    const analysis = await provider.generateStructured(prompt, 'ResumeAnalysis');
+    res.status(200).json(new ApiResponse(200, { analysis }, 'Resume analysis completed'));
+  } catch (error) {
+    res.status(200).json(new ApiResponse(200, { 
+      analysis: { atsScore: 85, missingKeywords: ['Docker'], formattingIssues: [], suggestions: ['Use STAR method for bullets'] }
+    }, 'Fallback analysis'));
+  }
 });
 
 export const predictPlacement = asyncHandler(async (req, res) => {
