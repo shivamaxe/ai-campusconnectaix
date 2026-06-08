@@ -21,8 +21,7 @@ const itemVariants = {
 
 const Courses = () => {
   const { data: response, isLoading } = useGetCoursesQuery({});
-  
-  const courses = response?.data || [];
+  const courses = Array.isArray(response?.data?.data) ? response.data.data : (Array.isArray(response?.data) ? response.data : []);
 
   return (
     <motion.div 
@@ -50,7 +49,7 @@ const Courses = () => {
         <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {courses.map((course: any, index: number) => (
             <motion.div
-              key={course.id}
+              key={course._id || course.id}
               variants={itemVariants}
             >
               <Card hoverable className="flex flex-col h-full border border-white/5 bg-gradient-to-b from-white/[0.05] to-transparent group cursor-pointer relative overflow-hidden">

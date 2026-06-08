@@ -42,8 +42,7 @@ const JobBoard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-
-  const jobs = response?.data || [];
+  const jobs = Array.isArray(response?.data?.data) ? response.data.data : (Array.isArray(response?.data) ? response.data : []);
 
   const handleApply = async (jobId: string) => {
     setApplyingId(jobId);
@@ -68,12 +67,12 @@ const JobBoard = () => {
   };
 
   const filteredJobs = jobs.filter((job: any) => {
-    const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          job.company.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (job?.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (job?.companyName || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     // Simulate type/location filtering (since mock data might not perfectly match types)
-    const matchesType = selectedTypes.length === 0 || selectedTypes.some(t => job.type.toLowerCase().includes(t.toLowerCase()));
-    const matchesLocation = selectedLocations.length === 0 || selectedLocations.some(l => job.location.toLowerCase().includes(l.toLowerCase()));
+    const matchesType = selectedTypes.length === 0 || selectedTypes.some(t => (job?.type || '').toLowerCase().includes(t.toLowerCase()));
+    const matchesLocation = selectedLocations.length === 0 || selectedLocations.some(l => (job?.location || '').toLowerCase().includes(l.toLowerCase()));
     
     return matchesSearch && matchesType && matchesLocation;
   });
@@ -185,7 +184,7 @@ const JobBoard = () => {
                         </div>
                         <div>
                           <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-1">{job.title}</h3>
-                          <p className="text-slate-400 font-medium text-sm mt-0.5">{job.company}</p>
+                          <p className="text-slate-400 font-medium text-sm mt-0.5">{job.companyName}</p>
                         </div>
                       </div>
                       <div className="flex flex-col items-end">
@@ -195,7 +194,7 @@ const JobBoard = () => {
                           'bg-amber-500/10 text-amber-400 border-amber-500/20'
                         }`}>
                           <Sparkles className="w-3 h-3" />
-                          {job.match}% Match
+                          {job.match || 92}% Match
                         </div>
                         <span className="text-[10px] text-slate-500 mt-1 uppercase font-semibold tracking-wider">AI Score</span>
                       </div>
@@ -208,11 +207,11 @@ const JobBoard = () => {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <DollarSign className="w-4 h-4 text-emerald-500" /> 
-                        <span className="text-emerald-400 font-medium">₹{job.stipend} / month</span>
+                        <span className="text-emerald-400 font-medium">₹{job.package?.stipend || job.package?.baseSalary || 'Negotiable'} {job.type === 'internship' ? '/ month' : ''}</span>
                       </div>
 
                       <div className="flex gap-2 mt-4 flex-wrap pt-2">
-                        {job.tags.map((tag: string) => (
+                        {(job.requiredSkills || []).map((tag: string) => (
                           <span key={tag} className="px-2.5 py-1 text-xs font-medium rounded-lg bg-white/5 border border-white/10 text-slate-300">
                             {tag}
                           </span>
