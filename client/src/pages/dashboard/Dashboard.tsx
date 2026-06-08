@@ -10,9 +10,12 @@ import {
   AlertCircle, 
   Lightbulb, 
   FileEdit,
-  Calendar,
+  Calendar as CalendarIcon,
   MonitorPlay,
-  ArrowRight
+  ArrowRight,
+  X,
+  MapPin,
+  Clock
 } from 'lucide-react';
 import { useGetPlacementPredictionMutation } from '../../store/api';
 
@@ -33,6 +36,7 @@ const Dashboard = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [getPrediction] = useGetPlacementPredictionMutation();
   const [prediction, setPrediction] = useState<any>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     getPrediction({}).unwrap().then(res => {
@@ -182,7 +186,7 @@ const Dashboard = () => {
           <Card className="border border-white/5">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold font-['Outfit'] text-white flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-400" />
+                <CalendarIcon className="w-5 h-5 text-blue-400" />
                 Upcoming Events
               </h2>
             </div>
@@ -212,12 +216,116 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <button className="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-white hover:bg-white/5 hover:border-white/20 transition-all" onClick={() => alert('Full calendar view coming soon!')}>
-              View Calendar
+            <button className="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-white hover:bg-white/5 hover:border-white/20 transition-all" onClick={() => setShowCalendar(true)}>
+              View Full Calendar
             </button>
           </Card>
         </motion.div>
       </motion.div>
+      {/* Calendar Modal */}
+      {showCalendar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f172a]/80 backdrop-blur-sm overflow-y-auto">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-4xl bg-[#1e293b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden my-8"
+          >
+            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-white/5 sticky top-0 z-10">
+              <h3 className="text-xl font-bold font-['Outfit'] text-white flex items-center gap-2">
+                <CalendarIcon className="w-5 h-5 text-blue-400" /> Placement Calendar
+              </h3>
+              <button onClick={() => setShowCalendar(false)} className="text-slate-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Visual Calendar Grid (Left) */}
+                <div className="md:col-span-2 space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-semibold text-white">October 2026</h4>
+                    <div className="flex gap-2">
+                      <button className="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-sm text-slate-300">Prev</button>
+                      <button className="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-sm text-slate-300">Next</button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 mb-2">
+                    <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+                  </div>
+                  <div className="grid grid-cols-7 gap-2">
+                    {/* Empty slots for prev month */}
+                    <div className="aspect-square rounded-lg border border-white/5 bg-transparent opacity-20"></div>
+                    <div className="aspect-square rounded-lg border border-white/5 bg-transparent opacity-20"></div>
+                    <div className="aspect-square rounded-lg border border-white/5 bg-transparent opacity-20"></div>
+                    <div className="aspect-square rounded-lg border border-white/5 bg-transparent opacity-20"></div>
+                    {/* Days */}
+                    {Array.from({ length: 31 }).map((_, i) => {
+                      const day = i + 1;
+                      const hasEvent = day === 15 || day === 18 || day === 22 || day === 28;
+                      const isToday = day === 12;
+                      return (
+                        <div key={i} className={`aspect-square rounded-lg border flex items-center justify-center relative cursor-pointer transition-all ${
+                          isToday ? 'border-blue-500 bg-blue-500/10 text-blue-400 font-bold' : 
+                          hasEvent ? 'border-purple-500/30 bg-purple-500/5 text-white hover:border-purple-500/50' : 
+                          'border-white/5 bg-white/[0.02] text-slate-400 hover:bg-white/5'
+                        }`}>
+                          {day}
+                          {hasEvent && <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-purple-400"></span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Event List (Right) */}
+                <div className="space-y-4 border-l border-white/10 pl-0 md:pl-8">
+                  <h4 className="text-lg font-semibold text-white mb-4">Upcoming Schedule</h4>
+                  <div className="space-y-3">
+                    
+                    <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-xs font-bold text-blue-400 bg-blue-500/20 px-2 py-0.5 rounded">Oct 15</span>
+                        <span className="text-[10px] text-blue-300">In 3 days</span>
+                      </div>
+                      <h5 className="text-white font-semibold mb-1">Google Pre-Placement Talk</h5>
+                      <div className="space-y-1 mt-2">
+                        <p className="text-xs text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> 10:00 AM - 12:00 PM</p>
+                        <p className="text-xs text-slate-400 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5"/> Main Auditorium</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-xs font-bold text-purple-400 bg-purple-500/20 px-2 py-0.5 rounded">Oct 18</span>
+                        <span className="text-[10px] text-purple-300">Mandatory</span>
+                      </div>
+                      <h5 className="text-white font-semibold mb-1">AI Mock Interview Drive</h5>
+                      <div className="space-y-1 mt-2">
+                        <p className="text-xs text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> 2:00 PM - 5:00 PM</p>
+                        <p className="text-xs text-slate-400 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5"/> Digital Twin Portal</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-xs font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded">Oct 22</span>
+                        <span className="text-[10px] text-emerald-300">Assessment</span>
+                      </div>
+                      <h5 className="text-white font-semibold mb-1">Amazon Coding Round</h5>
+                      <div className="space-y-1 mt-2">
+                        <p className="text-xs text-slate-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> 9:00 AM - 10:30 AM</p>
+                        <p className="text-xs text-slate-400 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5"/> Online Proctored</p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };
