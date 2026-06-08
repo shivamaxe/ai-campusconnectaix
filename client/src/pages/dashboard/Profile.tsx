@@ -66,13 +66,13 @@ const Profile = () => {
               </div>
               
               <div className="flex gap-3 mb-2">
-                <Button variant="outline" size="sm" className="bg-white/5 hover:bg-white/10" leftIcon={<Github className="w-4 h-4" />}>
+                <Button variant="outline" size="sm" className="bg-white/5 hover:bg-white/10" leftIcon={<Github className="w-4 h-4" />} onClick={() => alert('GitHub integration coming soon!')}>
                   GitHub
                 </Button>
-                <Button variant="outline" size="sm" className="bg-white/5 hover:bg-white/10" leftIcon={<Linkedin className="w-4 h-4" />}>
+                <Button variant="outline" size="sm" className="bg-white/5 hover:bg-white/10" leftIcon={<Linkedin className="w-4 h-4" />} onClick={() => alert('LinkedIn integration coming soon!')}>
                   LinkedIn
                 </Button>
-                <Button variant="primary" size="sm">
+                <Button variant="primary" size="sm" onClick={() => alert('Edit profile functionality coming soon!')}>
                   Edit Profile
                 </Button>
               </div>
@@ -121,7 +121,7 @@ const Profile = () => {
                   <span className="text-slate-400 font-medium">/100</span>
                 </div>
                 <p className="text-sm text-slate-400 mb-6">Top 12% among peers for SDE roles.</p>
-                <Button variant="primary" className="w-full">Improve Resume</Button>
+                <Button variant="primary" className="w-full" onClick={() => alert('Resume improvement tool coming soon!')}>Improve Resume</Button>
               </div>
             </Card>
           </motion.div>
@@ -136,7 +136,7 @@ const Profile = () => {
                   <Code className="w-5 h-5 text-blue-400" />
                   Top Skills
                 </h3>
-                <Button variant="ghost" size="sm">Manage Skills</Button>
+                <Button variant="ghost" size="sm" onClick={() => alert('Skill management coming soon!')}>Manage Skills</Button>
               </div>
               
               <div className="flex flex-wrap gap-2">
@@ -144,6 +144,7 @@ const Profile = () => {
                   <span 
                     key={skill} 
                     className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm font-medium text-slate-300 hover:border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-400 cursor-pointer transition-all duration-300"
+                    onClick={() => alert(`Skill details for ${skill} coming soon!`)}
                   >
                     {skill}
                   </span>
@@ -190,7 +191,7 @@ const Profile = () => {
                   <Award className="w-5 h-5 text-amber-400" />
                   Certifications
                 </h3>
-                <Button variant="ghost" size="sm">Add New</Button>
+                <Button variant="ghost" size="sm" onClick={() => alert('Add certification coming soon!')}>Add New</Button>
               </div>
               
               <div className="space-y-4">
@@ -199,14 +200,14 @@ const Profile = () => {
                     <h4 className="text-white font-semibold group-hover:text-blue-400 transition-colors">AWS Certified Developer – Associate</h4>
                     <p className="text-sm text-slate-400 mt-1">Amazon Web Services • Issued Jan 2024</p>
                   </div>
-                  <Button variant="outline" size="sm">View Credential</Button>
+                  <Button variant="outline" size="sm" onClick={() => alert('Credential view coming soon!')}>View Credential</Button>
                 </div>
                 <div className="group p-4 rounded-xl border border-white/5 bg-white/5 hover:border-white/10 transition-colors flex justify-between items-center cursor-pointer">
                   <div>
                     <h4 className="text-white font-semibold group-hover:text-blue-400 transition-colors">Advanced React Patterns</h4>
                     <p className="text-sm text-slate-400 mt-1">Frontend Masters • Issued Nov 2023</p>
                   </div>
-                  <Button variant="outline" size="sm">View Credential</Button>
+                  <Button variant="outline" size="sm" onClick={() => alert('Credential view coming soon!')}>View Credential</Button>
                 </div>
               </div>
             </Card>

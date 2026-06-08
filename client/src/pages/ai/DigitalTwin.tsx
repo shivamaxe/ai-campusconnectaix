@@ -139,7 +139,7 @@ const DigitalTwin = () => {
               ))}
             </div>
             
-            <button className="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-white hover:bg-white/5 transition-all">
+            <button className="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-white hover:bg-white/5 transition-all" onClick={() => alert('Twin settings coming soon!')}>
               Configure Twin Settings
             </button>
           </Card>

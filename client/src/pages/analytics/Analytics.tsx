@@ -5,7 +5,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   BarChart, Bar, Legend
 } from 'recharts';
-import { TrendingUp, Users, Building, Activity, Lightbulb } from 'lucide-react';
+import { TrendingUp, Users, Building, Activity, Lightbulb, Target } from 'lucide-react';
 
 // Mock Data
 const salaryData = [

@@ -16,10 +16,36 @@ export const getCareerAdvice = asyncHandler(async (req, res) => {
   try {
     const prompt = `You are an AI Career Coach. Student profile: CGPA: ${student?.cgpa || 'N/A'}, Skills: ${student?.skills?.join(', ') || 'None'}. Student asks: ${query}`;
     const provider = getProvider();
+    
+    // Simulate API validation early to force fallback if no keys are provided
+    if (!process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY) {
+      throw new Error("No API keys configured.");
+    }
+    
     const response = await provider.generateText(prompt);
     res.status(200).json(new ApiResponse(200, { advice: response }, 'Career advice generated'));
   } catch (error) {
-    res.status(200).json(new ApiResponse(200, { advice: "I am currently in offline mode because the AI API keys are not configured. Based on your query, I suggest focusing on core fundamentals and checking out the job board!" }, 'Fallback advice used'));
+    // Dynamic Mock Fallback Logic
+    const q = query.toLowerCase();
+    let dynamicResponse = "I am currently in offline mode. However, regarding your query, I suggest focusing on core fundamentals and exploring our job board!";
+    
+    if (q.includes("java")) {
+      dynamicResponse = "Java is a high-level, class-based, object-oriented programming language that is designed to have as few implementation dependencies as possible. It is widely used in enterprise backend systems.";
+    } else if (q.includes("python")) {
+      dynamicResponse = "Python is an interpreted, high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation. Great for AI and backend!";
+    } else if (q.includes("elon musk")) {
+      dynamicResponse = "Elon Musk is a business magnate and investor. He is the founder, CEO, and Chief Engineer at SpaceX; angel investor, CEO, and Product Architect of Tesla, Inc.; owner and CTO of X Corp.; founder of the Boring Company; and co-founder of Neuralink and OpenAI.";
+    } else if (q.includes("machine learning")) {
+      dynamicResponse = "Machine Learning is a field of inquiry devoted to understanding and building methods that 'learn', that is, methods that leverage data to improve performance on some set of tasks.";
+    } else if (q.includes("joke")) {
+      dynamicResponse = "Why do programmers prefer dark mode? Because light attracts bugs!";
+    } else if (q.includes("resume")) {
+      dynamicResponse = "To improve your resume, make sure you highlight quantifiable achievements (e.g., 'reduced load time by 30%') rather than just listing responsibilities. Also, ensure you match keywords from the job description!";
+    } else if (q.includes("interview")) {
+      dynamicResponse = "For technical interviews, practice the STAR method (Situation, Task, Action, Result) for behavioral questions, and practice explaining your thought process out loud for coding problems.";
+    }
+
+    res.status(200).json(new ApiResponse(200, { advice: `[Offline Mode] ${dynamicResponse}` }, 'Fallback advice used'));
   }
 });
 

@@ -151,12 +151,12 @@ const Dashboard = () => {
                 <Lightbulb className="w-5 h-5 text-amber-400" />
                 AI Recommended Actions
               </h2>
-              <button className="text-sm text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors">
+              <button className="text-sm text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors" onClick={() => alert('View all recommendations coming soon!')}>
                 View All <ArrowRight className="w-4 h-4" />
               </button>
             </div>
             <div className="space-y-4">
-              <div className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all flex gap-5 cursor-pointer">
+              <div className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all flex gap-5 cursor-pointer" onClick={() => alert('Recommendation module coming soon!')}>
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center shrink-0 border border-white/5 group-hover:border-blue-500/20 transition-colors">
                   <MonitorPlay className="w-6 h-6 text-blue-400" />
                 </div>
@@ -165,7 +165,7 @@ const Dashboard = () => {
                   <p className="text-slate-400 mt-1.5 leading-relaxed">Based on your target companies, you should focus on low-level design patterns this week to improve your matching score.</p>
                 </div>
               </div>
-              <div className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-purple-500/30 transition-all flex gap-5 cursor-pointer">
+              <div className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-purple-500/30 transition-all flex gap-5 cursor-pointer" onClick={() => alert('Resume module coming soon!')}>
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center shrink-0 border border-white/5 group-hover:border-purple-500/20 transition-colors">
                   <FileEdit className="w-6 h-6 text-purple-400" />
                 </div>
@@ -187,7 +187,7 @@ const Dashboard = () => {
               </h2>
             </div>
             <div className="space-y-5">
-              <div className="flex gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5">
+              <div className="flex gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5" onClick={() => alert('Event details coming soon!')}>
                 <div className="flex flex-col items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-xl shrink-0 border border-blue-500/20">
                   <span className="text-[10px] text-blue-400 uppercase font-bold tracking-wider">Oct</span>
                   <span className="text-xl font-black text-white font-['Outfit']">15</span>
@@ -200,7 +200,7 @@ const Dashboard = () => {
               
               <div className="w-full h-px bg-white/5"></div>
               
-              <div className="flex gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5">
+              <div className="flex gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5" onClick={() => alert('Event details coming soon!')}>
                 <div className="flex flex-col items-center justify-center w-14 h-14 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl shrink-0 border border-purple-500/20">
                   <span className="text-[10px] text-purple-400 uppercase font-bold tracking-wider">Oct</span>
                   <span className="text-xl font-black text-white font-['Outfit']">18</span>
@@ -212,7 +212,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <button className="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-white hover:bg-white/5 hover:border-white/20 transition-all">
+            <button className="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-white hover:bg-white/5 hover:border-white/20 transition-all" onClick={() => alert('Full calendar view coming soon!')}>
               View Calendar
             </button>
           </Card>

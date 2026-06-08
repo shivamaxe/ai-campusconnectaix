@@ -445,6 +445,7 @@ const LandingPage = () => {
                 variant="outline"
                 size="lg"
                 leftIcon={<Play className="w-5 h-5" />}
+                onClick={() => alert('Demo video coming soon!')}
               >
                 Watch Demo
               </Button>

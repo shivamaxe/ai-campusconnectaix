@@ -12,7 +12,9 @@ import {
   Filter, 
   Sparkles,
   Building2,
-  Clock
+  Clock,
+  Bookmark,
+  BookmarkCheck
 } from 'lucide-react';
 
 import { useGetJobsQuery, useApplyForJobMutation } from '../../store/api';
@@ -34,6 +36,12 @@ const JobBoard = () => {
   const { data: response, isLoading } = useGetJobsQuery({});
   const [applyForJob, { isLoading: isApplying }] = useApplyForJobMutation();
   const [applyingId, setApplyingId] = useState<string | null>(null);
+  const [savedJobs, setSavedJobs] = useState<string[]>([]);
+  
+  // Filtering state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   const jobs = response?.data || [];
 
@@ -48,6 +56,27 @@ const JobBoard = () => {
       setApplyingId(null);
     }
   };
+
+  const toggleSaveJob = (jobId: string) => {
+    setSavedJobs(prev => 
+      prev.includes(jobId) ? prev.filter(id => id !== jobId) : [...prev, jobId]
+    );
+  };
+
+  const toggleFilter = (setFn: React.Dispatch<React.SetStateAction<string[]>>, value: string) => {
+    setFn(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+  };
+
+  const filteredJobs = jobs.filter((job: any) => {
+    const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          job.company.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Simulate type/location filtering (since mock data might not perfectly match types)
+    const matchesType = selectedTypes.length === 0 || selectedTypes.some(t => job.type.toLowerCase().includes(t.toLowerCase()));
+    const matchesLocation = selectedLocations.length === 0 || selectedLocations.some(l => job.location.toLowerCase().includes(l.toLowerCase()));
+    
+    return matchesSearch && matchesType && matchesLocation;
+  });
 
   return (
     <motion.div 
@@ -72,6 +101,8 @@ const JobBoard = () => {
               type="text"
               className="block w-full pl-10 pr-3 py-2.5 border border-white/10 rounded-xl leading-5 bg-[#0f172a]/50 backdrop-blur-sm text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-white/5 focus:border-blue-500/50 transition-colors sm:text-sm"
               placeholder="Search roles, companies..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10 shrink-0">
@@ -93,9 +124,9 @@ const JobBoard = () => {
                 <p className="text-sm font-medium text-slate-400 mb-3">Role Type</p>
                 <div className="space-y-2">
                   {['Full-time', 'Internship', 'Contract'].map(type => (
-                    <label key={type} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="w-4 h-4 rounded border border-white/20 bg-white/5 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
-                        {type === 'Full-time' && <div className="w-2 h-2 rounded-sm bg-blue-500" />}
+                    <label key={type} className="flex items-center gap-3 cursor-pointer group" onClick={() => toggleFilter(setSelectedTypes, type)}>
+                      <div className={`w-4 h-4 rounded border ${selectedTypes.includes(type) ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 bg-white/5'} flex items-center justify-center group-hover:border-blue-500/50 transition-colors`}>
+                        {selectedTypes.includes(type) && <div className="w-2 h-2 rounded-sm bg-blue-500" />}
                       </div>
                       <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{type}</span>
                     </label>
@@ -107,9 +138,9 @@ const JobBoard = () => {
                 <p className="text-sm font-medium text-slate-400 mb-3">Location</p>
                 <div className="space-y-2">
                   {['Remote', 'Bangalore', 'Hyderabad', 'Pune'].map(loc => (
-                    <label key={loc} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="w-4 h-4 rounded border border-white/20 bg-white/5 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
-                        {(loc === 'Remote' || loc === 'Bangalore') && <div className="w-2 h-2 rounded-sm bg-blue-500" />}
+                    <label key={loc} className="flex items-center gap-3 cursor-pointer group" onClick={() => toggleFilter(setSelectedLocations, loc)}>
+                      <div className={`w-4 h-4 rounded border ${selectedLocations.includes(loc) ? 'border-blue-500 bg-blue-500/20' : 'border-white/20 bg-white/5'} flex items-center justify-center group-hover:border-blue-500/50 transition-colors`}>
+                        {selectedLocations.includes(loc) && <div className="w-2 h-2 rounded-sm bg-blue-500" />}
                       </div>
                       <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{loc}</span>
                     </label>
@@ -131,14 +162,19 @@ const JobBoard = () => {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
               {[1, 2, 3, 4].map(i => (
-                <Card key={i} className="h-64 bg-slate-800/30 border-white/5" />
+                <Card key={i} className="h-64 bg-slate-800/30 border-white/5"><div /></Card>
               ))}
             </div>
           ) : (
             <motion.div variants={containerVariants} className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {jobs.map((job, index) => (
+              {filteredJobs.length === 0 ? (
+                <div className="col-span-1 xl:col-span-2 text-center py-12 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-slate-400">No jobs match your filters.</p>
+                  <Button variant="ghost" className="mt-4" onClick={() => { setSearchQuery(''); setSelectedTypes([]); setSelectedLocations([]); }}>Clear Filters</Button>
+                </div>
+              ) : filteredJobs.map((job: any, index: number) => (
                 <motion.div
-                  key={job.id}
+                  key={job._id || job.id}
                   variants={itemVariants}
                 >
                   <Card hoverable className="h-full flex flex-col border border-white/5 bg-gradient-to-b from-white/[0.05] to-transparent group cursor-pointer">
@@ -193,7 +229,13 @@ const JobBoard = () => {
                       >
                         Apply Now
                       </Button>
-                      <Button variant="outline" className="bg-white/5 border-white/10 hover:bg-white/10 px-4">Save</Button>
+                      <Button 
+                        variant="outline" 
+                        className={`px-4 border-white/10 hover:bg-white/10 ${savedJobs.includes(job._id || job.id) ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' : 'bg-white/5'}`}
+                        onClick={() => toggleSaveJob(job._id || job.id)}
+                      >
+                        {savedJobs.includes(job._id || job.id) ? <BookmarkCheck className="w-4 h-4" /> : 'Save'}
+                      </Button>
                     </div>
                   </Card>
                 </motion.div>

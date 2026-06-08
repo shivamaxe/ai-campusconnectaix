@@ -43,12 +43,12 @@ const Courses = () => {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
           {[1, 2, 3, 4].map(i => (
-            <Card key={i} className="h-64 bg-slate-800/30 border-white/5" />
+            <Card key={i} className="h-64 bg-slate-800/30 border-white/5"><div /></Card>
           ))}
         </div>
       ) : (
         <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {courses.map((course, index) => (
+          {courses.map((course: any, index: number) => (
             <motion.div
               key={course.id}
               variants={itemVariants}
@@ -113,7 +113,11 @@ const Courses = () => {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-white/5 flex gap-3">
-                  <Button variant="outline" className="w-full bg-white/5 border-white/10 hover:bg-white/10">
+                  <Button 
+                    variant="outline" 
+                    className="w-full bg-white/5 border-white/10 hover:bg-white/10"
+                    onClick={() => alert(`Course overview for ${course.name} is coming soon!`)}
+                  >
                     Course Overview <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
