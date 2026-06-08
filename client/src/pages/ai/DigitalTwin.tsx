@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { Card } from '../../components/common/Card';
 import { motion } from 'framer-motion';
-import { Cpu, Activity, ShieldCheck, Zap, Radar, Database, Network } from 'lucide-react';
+import { Cpu, Activity, ShieldCheck, Zap, Radar, Database, Network, Settings, X, ToggleLeft, ToggleRight, SlidersHorizontal } from 'lucide-react';
 import { useGetPlacementPredictionMutation } from '../../store/api';
 
 const containerVariants = {
@@ -23,6 +23,13 @@ const DigitalTwin = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [getPrediction, { isLoading }] = useGetPlacementPredictionMutation();
   const [prediction, setPrediction] = useState<any>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState({
+    autoApply: true,
+    shareProfile: true,
+    matchThreshold: 85,
+    autoSchedule: false
+  });
 
   useEffect(() => {
     getPrediction({}).unwrap().then(res => {
@@ -139,12 +146,97 @@ const DigitalTwin = () => {
               ))}
             </div>
             
-            <button className="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-white hover:bg-white/5 transition-all" onClick={() => alert('Twin settings coming soon!')}>
-              Configure Twin Settings
+            <button 
+              className="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-sm font-semibold text-white hover:bg-white/5 transition-all flex justify-center items-center gap-2" 
+              onClick={() => setShowSettings(true)}
+            >
+              <Settings className="w-4 h-4" /> Configure Twin Settings
             </button>
           </Card>
         </motion.div>
       </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f172a]/80 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md bg-[#1e293b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+          >
+            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Settings className="w-5 h-5 text-blue-400" /> Twin Configuration
+              </h3>
+              <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-medium">Auto-Apply to Jobs</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Allow your twin to apply to highly matched jobs automatically.</p>
+                </div>
+                <button onClick={() => setSettings({...settings, autoApply: !settings.autoApply})} className={`transition-colors ${settings.autoApply ? 'text-blue-500' : 'text-slate-500'}`}>
+                  {settings.autoApply ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-medium">Share Profile Externally</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Let recruiters discover your twin's data.</p>
+                </div>
+                <button onClick={() => setSettings({...settings, shareProfile: !settings.shareProfile})} className={`transition-colors ${settings.shareProfile ? 'text-blue-500' : 'text-slate-500'}`}>
+                  {settings.shareProfile ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-medium">Auto-Schedule Interviews</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Sync with calendar to accept interview slots.</p>
+                </div>
+                <button onClick={() => setSettings({...settings, autoSchedule: !settings.autoSchedule})} className={`transition-colors ${settings.autoSchedule ? 'text-blue-500' : 'text-slate-500'}`}>
+                  {settings.autoSchedule ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
+                </button>
+              </div>
+
+              <div className="pt-2 border-t border-white/10">
+                <div className="flex justify-between items-center mb-3">
+                  <p className="text-white font-medium flex items-center gap-2"><SlidersHorizontal className="w-4 h-4 text-purple-400"/> Minimum Match Threshold</p>
+                  <span className="text-sm font-bold text-purple-400">{settings.matchThreshold}%</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="50" max="100" 
+                  value={settings.matchThreshold} 
+                  onChange={(e) => setSettings({...settings, matchThreshold: Number(e.target.value)})}
+                  className="w-full accent-purple-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                />
+                <p className="text-xs text-slate-500 mt-2 text-center">Your twin will only auto-apply to jobs with a match score above this threshold.</p>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-white/10 bg-black/20 flex justify-end gap-3">
+              <button onClick={() => setShowSettings(false)} className="px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 transition-colors">
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  setShowSettings(false);
+                  alert('Settings saved successfully!');
+                }} 
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all"
+              >
+                Save Preferences
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };
