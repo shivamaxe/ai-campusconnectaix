@@ -104,21 +104,82 @@ export const seedData = async (existingUri = null) => {
     });
     console.log('Recruiter user created');
 
+    // Create Courses
+    await Course.create([
+      {
+        name: 'Advanced Data Structures',
+        code: 'CS301',
+        description: 'Learn advanced data structures and algorithms.',
+        credits: 4,
+        departmentId: csDept._id,
+        semester: 6,
+        attendance: 85,
+        status: 'excellent',
+        nextAssignment: 'Tomorrow, 11:59 PM'
+      },
+      {
+        name: 'Operating Systems',
+        code: 'CS302',
+        description: 'Learn OS concepts.',
+        credits: 3,
+        departmentId: csDept._id,
+        semester: 6,
+        attendance: 75,
+        status: 'warning',
+        nextAssignment: 'Friday, 10:00 AM'
+      },
+      {
+        name: 'Database Management',
+        code: 'CS303',
+        description: 'SQL and NoSQL databases.',
+        credits: 4,
+        departmentId: csDept._id,
+        semester: 6,
+        attendance: 92,
+        status: 'on-track',
+        nextAssignment: 'Next Week'
+      }
+    ]);
+    console.log('Courses created');
+
     // Create Job
-    await Job.create({
-      companyId: company._id,
-      companyName: company.name,
-      title: 'Software Engineer Intern',
-      description: 'Looking for a passionate software engineer intern.',
-      type: 'internship',
-      package: { stipend: 50000 },
-      location: 'Remote',
-      requiredSkills: ['React', 'Node.js'],
-      eligibilityCriteria: { minCGPA: 8.0, eligibleDepartments: ['CS'] },
-      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      status: 'open',
-    });
-    console.log('Job created');
+    await Job.create([
+      {
+        companyId: company._id,
+        companyName: company.name,
+        company: 'Google',
+        title: 'Software Engineer Intern',
+        description: 'Looking for a passionate software engineer intern.',
+        type: 'internship',
+        package: { stipend: 50000 },
+        stipend: '50,000',
+        location: 'Remote',
+        requiredSkills: ['React', 'Node.js'],
+        tags: ['React', 'Node.js', 'Frontend'],
+        match: 95,
+        eligibilityCriteria: { minCGPA: 8.0, eligibleDepartments: ['CS'] },
+        deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        status: 'open',
+      },
+      {
+        companyId: company._id,
+        companyName: company.name,
+        company: 'Amazon',
+        title: 'SDE-1 Backend',
+        description: 'Backend developer role.',
+        type: 'fulltime',
+        package: { baseSalary: 1500000 },
+        stipend: '1,50,000',
+        location: 'Bangalore',
+        requiredSkills: ['Java', 'Spring Boot'],
+        tags: ['Java', 'Backend', 'AWS'],
+        match: 82,
+        eligibilityCriteria: { minCGPA: 7.5, eligibleDepartments: ['CS'] },
+        deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+        status: 'open',
+      }
+    ]);
+    console.log('Jobs created');
 
     console.log('✅ Data seeded successfully!');
     if (!existingUri) process.exit(0);
