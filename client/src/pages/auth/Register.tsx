@@ -17,7 +17,6 @@ const Register = () => {
     role: 'student',
   });
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
   const dispatch = useDispatch();
